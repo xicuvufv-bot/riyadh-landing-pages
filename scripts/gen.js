@@ -6,6 +6,37 @@ const { ARTS } = require("./art.js");
 const ROOT = path.join(__dirname, "..");
 const BASE = "https://xicuvufv-bot.github.io/riyadh-landing-pages";
 
+const FONTS = {
+  "noor-abayas": "Cairo",
+  "lamsa-gifts": "Tajawal",
+  "layla-oud": "El Messiri",
+  "aileen-flowers": "Alexandria",
+  "qimat-alikhlas-spa": "Almarai",
+  "aalam-banat": "Reem Kufi",
+  "bayt-alhalwiyat": "Markazi Text",
+  "othman-laundry": "Mada",
+  "nasser-tailoring": "Noto Kufi Arabic",
+  "mama-noura-rawdah": "Amiri",
+  "perfume-technology": "IBM Plex Sans Arabic",
+  "fahad-oud": "Rubik",
+  "granada-roses": "Changa",
+  "suwaidi-laundry": "Lateef",
+  "othman-dates": "Vazirmatn",
+};
+
+const imgOf = (slug) => {
+  const dir = path.join(ROOT, "assets", "img", slug);
+  try {
+    return fs.readdirSync(dir).reduce((m, f) => {
+      const base = f.replace(/\.[^.]+$/, "");
+      m[base] = `../../assets/img/${slug}/${f}`;
+      return m;
+    }, {});
+  } catch {
+    return {};
+  }
+};
+
 const phoneDisplay = (p) => {
   if (!p) return "05X XXX XXXX";
   return `+${p.slice(0, 3)} ${p.slice(3, 5)} ${p.slice(5, 8)} ${p.slice(8)}`;
@@ -13,19 +44,39 @@ const phoneDisplay = (p) => {
 const waLink = (p) => (p ? `https://wa.me/${p}` : "https://wa.me/9665XXXXXXXX");
 
 let uid = 0;
-const art = (key, t, extra = "") => {
-  const svg = ARTS[key] ? ARTS[key](`a${++uid}`) : ARTS.giftbox(`a${++uid}`);
-  return extra ? svg.replace("<svg ", `<svg ${extra} `) : svg;
-};
+const art = (key) => ARTS[key] ? ARTS[key](`a${++uid}`) : ARTS.giftbox(`a${++uid}`);
 
-const favicon = `<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">`;
+const head = (s, font) => `
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${s.name} | الرياض</title>
+<meta name="description" content="${s.desc}">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=${font.replace(/ /g, "+")}:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/style.css">
+<style>:root{--accent:${s.accent};--accent2:${s.accent2};--deep:${s.deep};--soft:${s.soft};--light:${s.light};--p1:${s.p1};--p2:${s.p2};--font:'${font}','Noto Kufi Arabic',sans-serif;}</style>
+</head>`;
 
 const cubes = `
 <div class="cube-scene c1"><div class="cube"><div class="f1"></div><div class="f2"></div><div class="f3"></div><div class="f4"></div><div class="f5"></div><div class="f6"></div></div></div>
 <div class="cube-scene c2"><div class="cube"><div class="f1"></div><div class="f2"></div><div class="f3"></div><div class="f4"></div><div class="f5"></div><div class="f6"></div></div></div>
 <div class="cube-scene c3"><div class="cube"><div class="f1"></div><div class="f2"></div><div class="f3"></div><div class="f4"></div><div class="f5"></div><div class="f6"></div></div></div>`;
 
-const heroSplit = (s) => `
+const chips = (s) => `
+<div class="chip c1"><b>&#9733;</b>${s.stats[0][0]} ${s.stats[0][1]}</div>
+<div class="chip c2"><b>&#10003;</b>${s.stats[1][0]} ${s.stats[1][1]}</div>`;
+
+const heroImg = (s, img, frame) => `
+<div class="hero-img">
+  <div class="blob"></div>
+  <div class="frame"><img src="${img}" alt="${s.name}" loading="eager"></div>
+  ${chips(s)}
+</div>`;
+
+const heroSplit = (s, img) => `
 <div class="hero split">
   ${cubes}
   <div class="container hero-grid">
@@ -38,13 +89,11 @@ const heroSplit = (s) => `
         <a class="btn ghost" href="#products">اكتشف منتجاتنا</a>
       </div>
     </div>
-    <div class="hero-art">
-      <div class="art-float">${art(s.products[0].a, s)}</div>
-    </div>
+    ${heroImg(s, img)}
   </div>
 </div>`;
 
-const heroCenter = (s) => `
+const heroCenter = (s, img) => `
 <div class="hero center">
   ${cubes}
   <div class="container">
@@ -55,16 +104,13 @@ const heroCenter = (s) => `
       <a class="btn" href="${waLink(s.phone)}">اطلب عبر الواتساب</a>
       <a class="btn ghost" href="#products">اكتشف منتجاتنا</a>
     </div>
-    <div class="art-row">
-      <div class="art-float">${art(s.products[0].a, s)}</div>
-      <div class="art-float" style="animation-delay:-3s">${art(s.products[1].a, s)}</div>
-    </div>
+    ${heroImg(s, img)}
   </div>
 </div>`;
 
-const heroArtbg = (s) => `
+const heroArtbg = (s, img) => `
 <div class="hero artbg">
-  <div class="bg-svg">${art(s.products[0].a, s, 'preserveAspectRatio="xMidYMid slice"')}</div>
+  <div class="bg-img"><img src="${img}" alt="${s.name}" loading="eager"></div>
   <div class="container">
     <span class="badge ${s.badge}">${s.cat}</span>
     <h1>${s.name}<br><span class="grad">${s.tagline}</span></h1>
@@ -76,7 +122,7 @@ const heroArtbg = (s) => `
   </div>
 </div>`;
 
-const heroStack = (s) => `
+const heroStack = (s, img) => `
 <div class="hero stack">
   ${cubes}
   <div class="container">
@@ -87,9 +133,7 @@ const heroStack = (s) => `
       <a class="btn" href="${waLink(s.phone)}">اطلب عبر الواتساب</a>
       <a class="btn ghost" href="#products">اكتشف منتجاتنا</a>
     </div>
-    <div class="art-row">
-      <div class="art-float">${art(s.products[0].a, s)}</div>
-    </div>
+    ${heroImg(s, img)}
   </div>
 </div>`;
 
@@ -100,14 +144,14 @@ const cardClasses = ["", "square", "outline", "line-right"];
 const servicesSec = (s) => `
 <section id="services">
   <div class="container">
-    <div class="shead">
+    <div class="shead reveal">
       <span class="kick">خدماتنا</span>
       <h2>كل ما تحتاجه في مكان واحد</h2>
       <p>${s.cat} بأعلى معايير الجودة والاحترافية</p>
     </div>
     <div class="grid">
       ${s.services.map((sv, i) => `
-      <div class="tilt-wrap"><div class="card ${cardClasses[i % 4]} tilt">
+      <div class="tilt-wrap reveal"><div class="card ${cardClasses[i % 4]} tilt">
         <span class="icon">&#9670;</span>
         <h3>${sv.t}</h3>
         <p>${sv.d}</p>
@@ -116,21 +160,27 @@ const servicesSec = (s) => `
   </div>
 </section>`;
 
-const productsSec = (s) => `
+const productsSec = (s, imgs) => `
 <section id="products" style="background:linear-gradient(180deg, var(--bg), var(--panel));">
   <div class="container">
-    <div class="shead">
+    <div class="shead reveal">
       <span class="kick">منتجاتنا</span>
       <h2>تشكيلة مختارة بعناية</h2>
-      <p>معروضات حقيقية بجودة تلمسها بنفسك</p>
+      <p>صور حقيقية من متجرنا</p>
     </div>
     <div class="products">
-      ${s.products.map((p) => `
-      <div class="product">
-        <div class="art"><div class="shine"></div>${art(p.a, s)}</div>
+      ${s.products.map((p, i) => {
+        const src = imgs[`p${i + 1}`];
+        return `
+      <div class="product tilt reveal">
+        <div class="art">
+          ${src ? `<img src="${src}" alt="${p.t}" loading="lazy">` : art(p.a)}
+          <span class="shine"></span>
+        </div>
         <h3>${p.t}</h3>
         <p>${p.d}</p>
-      </div>`).join("")}
+      </div>`;
+      }).join("")}
     </div>
   </div>
 </section>`;
@@ -138,7 +188,7 @@ const productsSec = (s) => `
 const whySec = (s) => `
 <section>
   <div class="container two-col">
-    <div class="why">
+    <div class="why reveal">
       <div class="shead">
         <span class="kick">ليش نحن؟</span>
         <h2>أسباب تجعلنا خيارك الأول</h2>
@@ -147,7 +197,7 @@ const whySec = (s) => `
         ${s.why.map((w) => `<li>${w}</li>`).join("")}
       </ul>
     </div>
-    <div class="stats">
+    <div class="stats reveal">
       ${s.stats.map(([b, t]) => `
       <div class="stat"><div class="big">${b}</div><p>${t}</p></div>`).join("")}
     </div>
@@ -157,14 +207,17 @@ const whySec = (s) => `
 const stepsSec = (s) => `
 <section>
   <div class="container">
-    <div class="shead" style="text-align:center">
+    <div class="shead reveal" style="text-align:center">
       <span class="kick" style="justify-content:center">كيف تطلب؟</span>
       <h2>ثلاث خطوات وطلبك جاهز</h2>
     </div>
     <div class="steps">
-      <div class="step"><div class="num">1</div><h3>راسلنا واتساب</h3><p>حدد اللي تبغاه أو أرسل صورة طلبك</p></div>
-      <div class="step"><div class="num">2</div><h3>أكد طلبك</h3><p>نؤكد لك الطلب والسعر والوقت فوراً</p></div>
-      <div class="step"><div class="num">3</div><h3>يصلك طلبك</h3><p>استلم طلبك في أسرع وقت ممكن</p></div>
+      ${[
+        ["1", "راسلنا واتساب", "حدد اللي تبغاه أو أرسل صورة طلبك"],
+        ["2", "أكد طلبك", "نؤكد لك الطلب والسعر والوقت فوراً"],
+        ["3", "يصلك طلبك", "استلم طلبك في أسرع وقت ممكن"],
+      ].map(([n, t, d]) => `
+      <div class="step reveal"><div class="num">${n}</div><h3>${t}</h3><p>${d}</p></div>`).join("")}
     </div>
   </div>
 </section>`;
@@ -172,7 +225,7 @@ const stepsSec = (s) => `
 const ctaSec = (s) => `
 <section id="contact">
   <div class="container">
-    <div class="cta">
+    <div class="cta reveal">
       <h2>جاهز تطلب؟</h2>
       <p>راسلنا الآن على الواتساب - رد سريع وخدمة ما بعد الطلب متكاملة.</p>
       <div class="phone">${phoneDisplay(s.phone)}</div>
@@ -191,17 +244,9 @@ const marquee = (s) => `
   </div>
 </div>`;
 
-const page = (s) => `<!DOCTYPE html>
+const page = (s, imgs, font) => `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${s.name} | الرياض</title>
-<meta name="description" content="${s.desc}">
-${favicon}
-<link rel="stylesheet" href="../../assets/style.css">
-<style>:root{--accent:${s.accent};--accent2:${s.accent2};--deep:${s.deep};--soft:${s.soft};--light:${s.light};--p1:${s.p1};--p2:${s.p2};}</style>
-</head>
+${head(s, font)}
 <body>
 <div class="topbar">
   <div class="container">
@@ -214,21 +259,22 @@ ${favicon}
   </div>
 </div>
 
-${heroOf[s.hero](s)}
+${heroOf[s.hero](s, imgs.hero || imgs.p1 || "")}
 ${marquee(s)}
 ${servicesSec(s)}
-${productsSec(s)}
+${productsSec(s, imgs)}
 ${whySec(s)}
 ${stepsSec(s)}
 ${ctaSec(s)}
 
 <a class="wa-float" href="${waLink(s.phone)}" aria-label="واتساب">&#9993;</a>
 <footer><b>${s.name}</b> &mdash; الرياض</footer>
+<script src="../../assets/site.js" defer></script>
 </body>
 </html>`;
 
 /* ============ index ============ */
-const indexPage = `<!DOCTYPE html>
+const indexPage = (card) => `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
@@ -236,8 +282,11 @@ const indexPage = `<!DOCTYPE html>
 <title>مواقع محلات الرياض | دليل الصفحات التعريفية</title>
 <meta name="description" content="مجموعة صفحات تعريفية احترافية لمحلات ومتاجر الرياض. كل محل له صفحة مميزة بذر طلب مباشر عبر الواتساب.">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
-<style>:root{--accent:#0f766e;--accent2:#f59e0b;}</style>
+<style>:root{--accent:#0f766e;--accent2:#f59e0b;--font:'Cairo','Noto Kufi Arabic',sans-serif;}</style>
 </head>
 <body>
 <div class="topbar">
@@ -255,42 +304,32 @@ const indexPage = `<!DOCTYPE html>
   <div class="container">
     <span class="badge pill2">15 صفحة تعريفية</span>
     <h1>مواقع محلات الرياض<br><span class="grad">كل محل له واجهته الإلكترونية</span></h1>
-    <p class="lead">صفحات تعريفية احترافية لمحلات الرياض الصغيرة والمتوسطة. كل صفحة بتصميم فريد تعرض خدمات المحل ومنتجاته مع زر طلب مباشر عبر الواتساب.</p>
+    <p class="lead">صفحات تعريفية احترافية لمحلات الرياض الصغيرة والمتوسطة. كل صفحة بتصميم فريد تعرض خدمات المحل ومنتجاته بصور حقيقية مع زر طلب مباشر عبر الواتساب.</p>
   </div>
 </div>
 
 <div class="marquee">
   <div class="marquee-track">
-    ${Array(2).fill(`<span><b>&#10022;</b>تصميم فريد لكل محل</span><span><b>&#10022;</b>زر طلب واتساب مباشر</span><span><b>&#10022;</b>يعمل على جميع الأجهزة</span><span><b>&#10022;</b>تحسين لمحركات البحث</span>`).join("")}
+    ${Array(2).fill(`<span><b>&#10022;</b>تصميم فريد لكل محل</span><span><b>&#10022;</b>صور حقيقية من المتاجر</span><span><b>&#10022;</b>زر طلب واتساب مباشر</span><span><b>&#10022;</b>يعمل على جميع الأجهزة</span>`).join("")}
   </div>
 </div>
 
 <section id="stores">
   <div class="container">
-    <div class="shead">
+    <div class="shead reveal">
       <span class="kick">المحلات</span>
       <h2>اضغط على أي محل لعرض صفحته</h2>
       <p>كل بطاقة تعرض المحل، مجاله، ورقم واتسابه</p>
     </div>
     <div class="grid">
-      ${STORES.map((s) => `
-      <div class="tilt-wrap">
-        <a class="card tilt" href="stores/${s.slug}/index.html" style="display:block">
-          <div class="art" style="margin:-26px -22px 18px;background:linear-gradient(160deg,${s.p1},${s.p2})">
-            <svg viewBox="0 0 400 300" style="width:100%;height:auto" xmlns="http://www.w3.org/2000/svg">${(() => { const svg = art(s.products[0].a, s); return svg.replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, ""); })()}</svg>
-          </div>
-          <span class="icon" style="color:${s.accent2}">&#9670;</span>
-          <h3>${s.brand}</h3>
-          <p>${s.cat}${s.phone ? " - " + phoneDisplay(s.phone) : ""}</p>
-        </a>
-      </div>`).join("")}
+      ${card}
     </div>
   </div>
 </section>
 
 <section id="contact">
   <div class="container">
-    <div class="cta">
+    <div class="cta reveal">
       <h2>عندك محل في الرياض؟</h2>
       <p>لو عندك نشاط تجاري ومحتاج صفحة تعريفية احترافية برابط خاص وزر طلب واتساب مباشر، نسويها لك بسرعة.</p>
       <div class="btn-row">
@@ -301,16 +340,32 @@ const indexPage = `<!DOCTYPE html>
 </section>
 
 <footer>محلات الرياض &mdash; صفحات تعريفية احترافية</footer>
+<script src="assets/site.js" defer></script>
 </body>
 </html>`;
 
 /* ============ write ============ */
+const indexCards = [];
 for (const s of STORES) {
   const dir = path.join(ROOT, "stores", s.slug);
   fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(path.join(dir, "index.html"), page(s), "utf8");
+  const imgs = imgOf(s.slug);
+  fs.writeFileSync(path.join(dir, "index.html"), page(s, imgs, FONTS[s.slug] || "Cairo"), "utf8");
+  const hero = imgs.hero || imgs.p1;
+  indexCards.push(`
+      <div class="tilt-wrap reveal">
+        <a class="card tilt" href="stores/${s.slug}/index.html" style="display:block;overflow:hidden;padding:0">
+          <div class="art" style="aspect-ratio:16/10;border-radius:0;background:var(--panel)">
+            ${hero ? `<img src="assets/img/${s.slug}/${path.basename(hero)}" alt="${s.brand}" style="width:100%;height:100%;object-fit:cover;transition:transform .6s" loading="lazy">` : ""}
+          </div>
+          <div style="padding:18px 20px 22px">
+            <h3>${s.brand}</h3>
+            <p>${s.cat}${s.phone ? " - " + phoneDisplay(s.phone) : ""}</p>
+          </div>
+        </a>
+      </div>`);
   console.log("كتبت:", s.slug);
 }
-fs.writeFileSync(path.join(ROOT, "index.html"), indexPage, "utf8");
+fs.writeFileSync(path.join(ROOT, "index.html"), indexPage(indexCards.join("")), "utf8");
 console.log("كتبت index.html");
 console.log("تم توليد", STORES.length, "صفحة");
