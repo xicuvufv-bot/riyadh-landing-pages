@@ -354,7 +354,7 @@ for (const s of STORES) {
   const hero = imgs.hero || imgs.p1;
   indexCards.push(`
       <div class="tilt-wrap reveal">
-        <a class="card tilt" href="stores/${s.slug}/index.html" style="display:block;overflow:hidden;padding:0">
+        <a class="card tilt" href="${BASE}/${s.slug}/" target="_blank" rel="noopener" style="display:block;overflow:hidden;padding:0">
           <div class="art" style="aspect-ratio:16/10;border-radius:0;background:var(--panel)">
             ${hero ? `<img src="assets/img/${s.slug}/${path.basename(hero)}" alt="${s.brand}" style="width:100%;height:100%;object-fit:cover;transition:transform .6s" loading="lazy">` : ""}
           </div>
