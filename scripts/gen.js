@@ -29,6 +29,40 @@ const VIDEOS = {
   "aalam-banat": "abaya.mp4",
 };
 
+const igPhotos = (slug) => {
+  const dir = path.join(ROOT, "assets", "img", slug, "ig");
+  try {
+    return fs.readdirSync(dir).filter((f) => /\.(jpe?g|png|webp)$/i.test(f));
+  } catch {
+    return [];
+  }
+};
+
+const instaSec = (s) => {
+  const photos = igPhotos(s.slug);
+  if (!photos.length) return "";
+  const instaUrl = s.insta || `https://www.instagram.com/explore/search/keyword/?q=${encodeURIComponent(s.name)}`;
+  return `
+<section id="insta">
+  <div class="container">
+    <div class="shead reveal">
+      <span class="kick">&#9733; من حسابنا على إنستقرام</span>
+      <h2>أعمالنا الحقيقية</h2>
+      <p>صور مباشرة من حساباتنا على مواقع التواصل</p>
+    </div>
+    <div class="grid insta-grid">
+      ${photos.map((f) => `
+      <div class="tilt-wrap reveal">
+        <a class="insta-item" href="${instaUrl}" target="_blank" rel="noopener">
+          <img src="../../assets/img/${s.slug}/ig/${f}" alt="${s.name}" loading="lazy">
+          <span class="insta-badge">&#9775; تابعنا</span>
+        </a>
+      </div>`).join("")}
+    </div>
+  </div>
+</section>`;
+};
+
 const imgOf = (slug) => {
   const dir = path.join(ROOT, "assets", "img", slug);
   try {
@@ -282,6 +316,7 @@ ${heroOf[s.hero](s, imgs.hero || imgs.p1 || "")}
 ${marquee(s)}
 ${servicesSec(s)}
 ${productsSec(s, imgs)}
+${instaSec(s)}
 ${whySec(s)}
 ${stepsSec(s)}
 ${ctaSec(s)}

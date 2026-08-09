@@ -221,6 +221,19 @@ section { padding: 84px 0; }
 .card.outline { background: transparent; border: 1.5px solid color-mix(in srgb, var(--accent2) 30%, transparent); }
 .card.line-right { border-inline-start: 4px solid var(--accent2); border-radius: 14px; }
 
+/* ---------- Instagram gallery ---------- */
+.insta-grid { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; }
+.insta-item { position: relative; display: block; border-radius: 18px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 16px 36px -16px rgba(0, 0, 0, 0.6); }
+.insta-item img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.insta-item:hover img { transform: scale(1.08); }
+.insta-badge {
+  position: absolute; inset-inline-start: 10px; bottom: 10px;
+  padding: 6px 12px; border-radius: 999px; font-size: 0.75rem; font-weight: 800;
+  background: rgba(9, 11, 15, 0.72); backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.18); color: #fff;
+}
+
 /* ---------- Products ---------- */
 .products { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 22px; }
 .product { background: var(--card); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius); padding: 14px; transition: transform 0.2s, border-color 0.3s; transform-style: preserve-3d; }

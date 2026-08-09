@@ -22,10 +22,16 @@ for (const s of STORES) {
   }
   const imgs = fs.readdirSync(path.join(ROOT, "assets", "img", s.slug));
   for (const f of imgs) {
-    fs.copyFileSync(
-      path.join(ROOT, "assets", "img", s.slug, f),
-      path.join(assets, "img", s.slug, f)
-    );
+    const src = path.join(ROOT, "assets", "img", s.slug, f);
+    if (fs.statSync(src).isDirectory()) {
+      const igDir = path.join(assets, "img", s.slug, f);
+      fs.mkdirSync(igDir, { recursive: true });
+      for (const ig of fs.readdirSync(src)) {
+        fs.copyFileSync(path.join(src, ig), path.join(igDir, ig));
+      }
+      continue;
+    }
+    fs.copyFileSync(src, path.join(assets, "img", s.slug, f));
   }
   const VIDEOS = { "noor-abayas": "abaya.mp4", "aalam-banat": "abaya.mp4" };
   const v = VIDEOS[s.slug];
