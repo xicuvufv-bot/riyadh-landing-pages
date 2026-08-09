@@ -27,6 +27,12 @@ for (const s of STORES) {
       path.join(assets, "img", s.slug, f)
     );
   }
+  const VIDEOS = { "noor-abayas": "abaya.mp4", "aalam-banat": "abaya.mp4" };
+  const v = VIDEOS[s.slug];
+  if (v && fs.existsSync(path.join(ROOT, "assets", "videos", v))) {
+    fs.mkdirSync(path.join(assets, "videos"), { recursive: true });
+    fs.copyFileSync(path.join(ROOT, "assets", "videos", v), path.join(assets, "videos", v));
+  }
   console.log("جهزت:", s.slug);
 }
 console.log("جاهز في:", BUILD);

@@ -24,6 +24,11 @@ const FONTS = {
   "othman-dates": "Vazirmatn",
 };
 
+const VIDEOS = {
+  "noor-abayas": "abaya.mp4",
+  "aalam-banat": "abaya.mp4",
+};
+
 const imgOf = (slug) => {
   const dir = path.join(ROOT, "assets", "img", slug);
   try {
@@ -69,12 +74,19 @@ const chips = (s) => `
 <div class="chip c1"><b>&#9733;</b>${s.stats[0][0]} ${s.stats[0][1]}</div>
 <div class="chip c2"><b>&#10003;</b>${s.stats[1][0]} ${s.stats[1][1]}</div>`;
 
-const heroImg = (s, img, frame) => `
-<div class="hero-img">
+const heroImg = (s, img, frame) => {
+  const v = VIDEOS[s.slug];
+  return `
+<div class="hero-img${v ? " has-video" : ""}">
   <div class="blob"></div>
-  <div class="frame"><img src="${img}" alt="${s.name}" loading="eager"></div>
+  <div class="frame">${
+    v
+      ? `<video src="assets/videos/${v}" poster="${img}" autoplay muted loop playsinline preload="auto" aria-label="${s.name}"></video>`
+      : `<img src="${img}" alt="${s.name}" loading="eager">`
+  }</div>
   ${chips(s)}
 </div>`;
+};
 
 const heroSplit = (s, img) => `
 <div class="hero split">
@@ -108,9 +120,15 @@ const heroCenter = (s, img) => `
   </div>
 </div>`;
 
-const heroArtbg = (s, img) => `
-<div class="hero artbg">
-  <div class="bg-img"><img src="${img}" alt="${s.name}" loading="eager"></div>
+const heroArtbg = (s, img) => {
+  const v = VIDEOS[s.slug];
+  return `
+<div class="hero artbg${v ? " has-video" : ""}">
+  <div class="bg-img${v ? " bg-video" : ""}">${
+    v
+      ? `<video src="assets/videos/${v}" poster="${img}" autoplay muted loop playsinline preload="auto" aria-label="${s.name}"></video>`
+      : `<img src="${img}" alt="${s.name}" loading="eager">`
+  }</div>
   <div class="container">
     <span class="badge ${s.badge}">${s.cat}</span>
     <h1>${s.name}<br><span class="grad">${s.tagline}</span></h1>
@@ -121,6 +139,7 @@ const heroArtbg = (s, img) => `
     </div>
   </div>
 </div>`;
+};
 
 const heroStack = (s, img) => `
 <div class="hero stack">
